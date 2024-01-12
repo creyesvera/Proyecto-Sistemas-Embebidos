@@ -197,23 +197,23 @@ display.println("-Bienvenido-");
 
 display.setTextSize(1); 
 display.setCursor (28, 8); 
-display.println("Nivel 1: $20");
+display.println("Nivel 1: $2");
 
 display.setTextSize(1); 
 display.setCursor (28, 16); 
-display.println("Nivel 2: $50");
+display.println("Nivel 2: $5");
 
 display.setTextSize(1); 
 display.setCursor (28, 24); 
-display.println("Nivel 3: $100");
+display.println("Nivel 3: $10");
 
 display.setTextSize(1);
 display.setCursor (28, 32); 
-display.println("Nivel 4: $200");
+display.println("Nivel 4: $20");
 
 display.setTextSize(1); 
 display.setCursor(28, 40); 
-display.println("Nivel 5: $500");
+display.println("Nivel 5: $50");
 
 display.setTextSize(1); // Draw 2X-scale text 
 display.setTextColor (SSD1306_WHITE);
@@ -274,7 +274,7 @@ void animacionFinal (const uint8_t *bitmap, uint8_t w, uint8_t h) { //testanimat
 //Puerto para boton de RESET
 const int btnReset = 32;
 
-//const int btnBocina=18;
+const int btnBocina=18;
 
 //Puertos de entrada y salida del sensor
 const int sensorEntrada = 13;
@@ -361,15 +361,15 @@ void Ext_INT_reset(){
       monedasTotales = 0;
       dineroTotal = 0;
     
-      Serial.print("$0.5:");
+      Serial.print("$0.10:");
       Serial.print(monCincuenta);
-      Serial.print(" $1:");
+      Serial.print("$0.05:");
       Serial.print(monUno);
-      Serial.print(" $2:");
+      Serial.print("$0.25:");
       Serial.print(monDos);
-      Serial.print(" $5:");
+      Serial.print(" $1:");
       Serial.print(monCinco);
-      Serial.print(" $10:");
+      Serial.print("$0.50:");
       Serial.print(monDiez);
       Serial.print(" Total: $");
       Serial.print(dineroTotal);
@@ -408,10 +408,6 @@ void drawProgress(void){
   delay(1);
 }
 
-//Funcion encargada de almacenar los sensores que fueron activados
-void leerValorMonedas(){
-
-}
 
 //Asigna el valor de la moneda y lo almacena
 void asignarValorMoneda(){
@@ -467,9 +463,8 @@ void setup() {
   pinMode(sMoneda2,INPUT_PULLUP);
   pinMode(sMoneda3,INPUT_PULLUP);
   pinMode(sMoneda4,INPUT_PULLUP);
-  pinMode(btnReset,INPUT_PULLUP);
-  //pinMode(btnReset,INPUT); 
-  //pinMode(btnBocina,OUTPUT); 
+  pinMode(btnReset,INPUT_PULLDOWN); 
+  pinMode(btnBocina,OUTPUT); 
 
   attachInterrupt(sensorEntrada, Ext_INT_sensorEntrada, FALLING);
   attachInterrupt(sensorSalida, Ext_INT_sensorSalida, FALLING);
@@ -477,13 +472,13 @@ void setup() {
   attachInterrupt(sMoneda2, Ext_INT_sMoneda2, FALLING);
   attachInterrupt(sMoneda3, Ext_INT_sMoneda3, FALLING);
   attachInterrupt(sMoneda4, Ext_INT_sMoneda4, FALLING);  
-  attachInterrupt(btnReset, Ext_INT_reset, FALLING);  
+  attachInterrupt(btnReset, Ext_INT_reset, RISING);  
 
 }
 
 //Bucle repetitivo
 void loop() {
- 
+ /*
      Serial.print("Sensor entrada... \t");
      Serial.print(String(senEntrada));   
      Serial.print(" \t Sensor salida... \t");
@@ -503,7 +498,7 @@ void loop() {
       Serial.println(String(0));
     
   delay(1000);
-   
+   */
   //Verifica la entrada de una moneda
   if (senEntrada == HIGH && senSalida == LOW){
     monedaNueva = HIGH;
@@ -518,24 +513,24 @@ void loop() {
     //Pregunta si tenemos una moneda nueva y determina su valor
     if (monedaNueva == HIGH){
       asignarValorMoneda();
-      //digitalWrite(btnBocina, LOW);
+      digitalWrite(btnBocina, LOW);
       delay (5);
-      //digitalWrite(btnBocina, HIGH);
+      digitalWrite(btnBocina, HIGH);
       monedaNueva = LOW;
 
       //Cálculo de total de monedas y dinero
       monedasTotales = monCincuenta + monUno + monDos + monCinco + monDiez;
-      dineroTotal = (monCincuenta*0.5)+(monUno*1)+(monDos*2)+(monCinco*5)+(monDiez*10);
+      dineroTotal = (monCincuenta*0.10)+(monUno*0.05)+(monDos*0.25)+(monCinco*1)+(monDiez*0.50);
     
-      Serial.print("$0.5:");
+      Serial.print("$0.10:");
       Serial.print(monCincuenta);
-      Serial.print(" $1:");
+      Serial.print("$0.05:");
       Serial.print(monUno);
-      Serial.print(" $2:");
+      Serial.print("$0.25:");
       Serial.print(monDos);
-      Serial.print(" $5:");
+      Serial.print(" $1:");
       Serial.print(monCinco);
-      Serial.print(" $10:");
+      Serial.print("$0.50:");
       Serial.print(monDiez);
       Serial.print("  Total: $");
       Serial.print(dineroTotal);
@@ -588,41 +583,41 @@ void loop() {
 */ //Esto esta en Ext_INT_reset
 
   //Revisa que no se haya presionado el boton de RESET
-  //"Nivel 1: $20"
-  //"Nivel 2: $50" 
-  //"Nivel 3: $100"
-  //"Nivel 4: $200"
-  //"Nivel 5: $500"
+  //"Nivel 1: $2"
+  //"Nivel 2: $5" 
+  //"Nivel 3: $10"
+  //"Nivel 4: $20"
+  //"Nivel 5: $50"
 
   valorProgresBar =128 * (dineroTotal-metaNivel_prev)/(metaNivel_actual-metaNivel_prev);
 
-  if (dineroTotal>=500){
+  if (dineroTotal>=50){
     numeroNivel=6;
     animacionFinal(logo_bmp, LOGO_WIDTH, LOGO_HEIGHT);
-  }else if (dineroTotal>=200){
-    numeroNivel=5;
-    metaNivel_prev=200;
-    metaNivel_actual=500;
-    drawProgress(); 
-  }else if (dineroTotal>=100){
-    numeroNivel=4;
-    metaNivel_prev=100;
-    metaNivel_actual=200;
-    drawProgress();
-  }else if (dineroTotal>=50){
-    numeroNivel=3;
-    metaNivel_prev=50;
-    metaNivel_actual=100;
-    drawProgress();     
   }else if (dineroTotal>=20){
-    numeroNivel=2;
+    numeroNivel=5;
     metaNivel_prev=20;
     metaNivel_actual=50;
+    drawProgress(); 
+  }else if (dineroTotal>=10){
+    numeroNivel=4;
+    metaNivel_prev=10;
+    metaNivel_actual=20;
+    drawProgress();
+  }else if (dineroTotal>=5){
+    numeroNivel=3;
+    metaNivel_prev=5;
+    metaNivel_actual=10;
+    drawProgress();     
+  }else if (dineroTotal>=2){
+    numeroNivel=2;
+    metaNivel_prev=2;
+    metaNivel_actual=5;
     drawProgress();
   }else{
     numeroNivel=1;
     metaNivel_prev=0;
-    metaNivel_actual=20;
+    metaNivel_actual=2;
     drawProgress();
   }
   
